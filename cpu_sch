@@ -1,0 +1,27 @@
+
+#include <stdio.h>
+  #include <stdlib.h>
+    #include <string.h>
+
+      #define MAX_PROCESSES 100
+      #define MAX_RAM 2048 // Maximum RAM size in MB
+      #define CPU_1 512 // Memory allocated  CPU-1
+      #define CPU_2 1536 // Memory allocated  CPU-2
+      #define HIGH_PRIORITY_QUEUE 1
+      #define MEDIUM_PRIORITY_QUEUE 2
+      #define LOW_PRIORITY_QUEUE 3
+      #define RR_QUANTUM_MEDIUM 8 // Quantum time for medium priority Round Robin
+      #define RR_QUANTUM_LOW 16   // Quantum time for low priority Round Robin
+
+      struct Process {
+        int process_number;
+        int arrival_time;
+        int priority;
+        int burst_time;
+        int ram_required;
+        int cpu_rate;
+      };
+      int main(int argc, char *argv[]) {
+          return 0;
+
+        }
