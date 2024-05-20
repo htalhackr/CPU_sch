@@ -21,6 +21,50 @@
         int ram_required;
         int cpu_rate;
       };
+
+      // Function to read input file and parse process data
+      int parse_input_file(char *filename, struct Process processes[]) {
+        FILE *file = fopen(filename, "r");
+        if (file == NULL) {
+          printf("Error: Unable to open input file.\n");
+          return 0;
+        }
+
+        int num_processes = 0;
+        char line[100];
+        while (fgets(line, sizeof(line), file) != NULL) {
+          // Parse process data from each line
+          char *token;
+          token = strtok(line, ",");
+          processes[num_processes].process_number = atoi(&token[1]);
+          token = strtok(NULL, ",");
+          processes[num_processes].arrival_time = atoi(token);
+          token = strtok(NULL, ",");
+          processes[num_processes].priority = atoi(token);
+          token = strtok(NULL, ",");
+          processes[num_processes].burst_time = atoi(token);
+          token = strtok(NULL, ",");
+          processes[num_processes].ram_required = atoi(token);
+          token = strtok(NULL, ",");
+          processes[num_processes].cpu_rate = atoi(token);
+          num_processes++;
+        }
+
+        fclose(file);
+        return num_processes;
+      }
+
+      // Function to perform resource check
+      int resource_check(struct Process process) {
+        int CPU = (process.priority == 0) ? CPU_1 : CPU_2;
+        if (process.ram_required <= CPU) {
+          return 1; // Sufficient resources available
+        } else {
+          printf("Insufficient resources available for process %d.\n", process.process_number);
+          return 0; // Insufficient resources available
+        }
+      }
+
       int main(int argc, char *argv[]) {
           return 0;
 
