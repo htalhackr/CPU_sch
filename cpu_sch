@@ -88,7 +88,25 @@
           fprintf(output_file, "Process %d is assigned to CPU-1.\n", process.process_number);
         }
       }
+      // Function to sort processes based on burst time (SJF)
+      void burst_sort_processes(struct Process processes[], int num_processes) {
+        for (int i = 0; i < num_processes - 1; i++) {
+          for (int j = 0; j < num_processes - i - 1; j++) {
+            if (processes[j].burst_time > processes[j + 1].burst_time) {
+              struct Process temp = processes[j];
+              processes[j] = processes[j + 1];
+              processes[j + 1] = temp;
+            }
+          }
+        }
+      }
 
+      // Function to assign processes to CPU-2 using specific scheduling algorithms
+      void assign_to_cpu2(struct Process process, FILE *output_file) {
+        if (process.priority == 1  process.priority == 2  process.priority == 3) {
+            fprintf(output_file, "Process %d is assigned to CPU-2.\n", process.process_number);
+         }
+      }
       int main(int argc, char *argv[]) {
           return 0;
 
