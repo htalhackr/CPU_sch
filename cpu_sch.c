@@ -92,7 +92,7 @@
       void burst_sort_processes(struct Process processes[], int num_processes) {
         for (int i = 0; i < num_processes - 1; i++) {
           for (int j = 0; j < num_processes - i - 1; j++) {
-            if (processes[j].burst_time+processes[j].arrival_time > processes[j + 1].burst_time+processes[j + 1].arrival_time) {
+            if ( processes[j].arrival_time == processes[j + 1].arrival_time && processes[j].burst_time> processes[j + 1].burst_time) {
               struct Process temp = processes[j];
               processes[j] = processes[j + 1];
               processes[j + 1] = temp;
