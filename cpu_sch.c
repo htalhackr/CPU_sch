@@ -65,7 +65,6 @@
         }
       }
 
-      // Function to sort processes based on arrival time using FCFS algorithm
       void FCFS_sort_processes(struct Process processes[], int num_processes) {
       int i, j;
       struct Process key;
@@ -88,11 +87,12 @@
           fprintf(output_file, "Process %d is assigned to CPU-1.\n", process.process_number);
         }
       }
+
       // Function to sort processes based on burst time (SJF)
       void burst_sort_processes(struct Process processes[], int num_processes) {
         for (int i = 0; i < num_processes - 1; i++) {
           for (int j = 0; j < num_processes - i - 1; j++) {
-            if (processes[j].burst_time > processes[j + 1].burst_time) {
+            if (processes[j].burst_time+processes[j].arrival_time > processes[j + 1].burst_time+processes[j + 1].arrival_time) {
               struct Process temp = processes[j];
               processes[j] = processes[j + 1];
               processes[j + 1] = temp;
@@ -103,12 +103,13 @@
 
       // Function to assign processes to CPU-2 using specific scheduling algorithms
       void assign_to_cpu2(struct Process process, FILE *output_file) {
-        if (process.priority == 1  process.priority == 2  process.priority == 3) {
+        if (process.priority == 1 || process.priority == 2 || process.priority == 3) {
             fprintf(output_file, "Process %d is assigned to CPU-2.\n", process.process_number);
          }
       }
 
-   int round_robin(struct Process queue[], int count, FILE* output_file, int quantum_time) {
+      // Function to perform Round Robin scheduling
+      int round_robin(struct Process queue[], int count, FILE* output_file, int quantum_time) {
         struct Process RR[MAX_PROCESSES];
 
         int done[MAX_PROCESSES] = {0};
@@ -191,7 +192,94 @@
         }
         return newcount;
       }
-      int main(int argc, char *argv[]) {
-          return 0;
 
+
+      int main(int argc, char *argv[]) {
+        if (argc != 2) {
+          printf("Usage: %s <input_file>\n", argv[0]);
+            return 1;
+          }
+
+          struct Process processes[MAX_PROCESSES];
+          int num_processes = parse_input_file(argv[1], processes);
+          if (num_processes == 0) {
+            printf("Error: Failed to parse input file.\n");
+            return 1;
+          }
+
+          FILE *output_file = fopen("output.txt", "w");
+          if (output_file == NULL) {
+            printf("Error: Unable to create output file.\n");
+            return 1;
+          }
+
+          struct Process que0[MAX_PROCESSES];
+          struct Process que1[MAX_PROCESSES];
+          struct Process que2[MAX_PROCESSES];
+          struct Process que3[MAX_PROCESSES];
+          int count0 = 0, count1 = 0, count2 = 0, count3 = 0;
+
+          FCFS_sort_processes(processes, num_processes);
+
+          for (int i = 0; i < num_processes; i++) {
+            if (!resource_check(processes[i])) {
+              printf("Resource check failed for process %d\n", processes[i].process_number);
+            } else {
+              if (processes[i].priority == 0) {
+                que0[count0++] = processes[i];
+                fprintf(output_file, "Process %d is queued to be assigned to CPU-1.\n", processes[i].process_number);
+              } else if (processes[i].priority == 1) {
+                que1[count1++] = processes[i];
+                fprintf(output_file, "Process %d is queued to be assigned to CPU-2.\n", processes[i].process_number);
+              } else if (processes[i].priority == 2) {
+                que2[count2++] = processes[i];
+                fprintf(output_file, "Process %d is queued to be assigned to CPU-2.\n", processes[i].process_number);
+              } else if (processes[i].priority == 3) {
+                que3[count3++] = processes[i];
+                fprintf(output_file, "Process %d is queued to be assigned to CPU-2.\n", processes[i].process_number);
+              }
+            }
+          }
+
+          for (int i = 0; i < count0; i++) {
+            assign_to_cpu1(que0[i], output_file);
+            fprintf(output_file, "Process %d is completed and terminated.\n", que0[i].process_number);
+          }
+
+          burst_sort_processes(que1, count1);
+
+          for (int i = 0; i < count1; i++) {
+            assign_to_cpu2(que1[i], output_file);
+            fprintf(output_file, "Process %d is completed and terminated.\n", que1[i].process_number);
+          }
+
+          count2 = round_robin(que2, count2, output_file, RR_QUANTUM_MEDIUM);
+          count3 = round_robin(que3, count3, output_file, RR_QUANTUM_LOW);
+
+          printf("CPU-1 queue (priority-0) (FCFS) -> ");
+          for (int i = 0; i < count0; i++) {
+            printf("P%d ", que0[i].process_number);
+          }
+          printf("\n");
+
+          printf("CPU-2 queue (priority-1) (SJF) -> ");
+          for (int i = 0; i < count1; i++) {
+            printf("P%d ", que1[i].process_number);
+          }
+          printf("\n");
+
+          printf("CPU-2 queue (priority-2) (RR-q8) -> ");
+          for (int i = 0; i < count2; i++) {
+            printf("P%d ", que2[i].process_number);
+          }
+          printf("\n");
+
+          printf("CPU-2 queue (priority-3) (RR-q16) -> ");
+          for (int i = 0; i < count3; i++) {
+            printf("P%d ", que3[i].process_number);
+          }
+          printf("\n");
+
+          fclose(output_file);
+          return 0;
         }
