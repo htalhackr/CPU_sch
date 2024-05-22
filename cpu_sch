@@ -107,6 +107,90 @@
             fprintf(output_file, "Process %d is assigned to CPU-2.\n", process.process_number);
          }
       }
+
+   int round_robin(struct Process queue[], int count, FILE* output_file, int quantum_time) {
+        struct Process RR[MAX_PROCESSES];
+
+        int done[MAX_PROCESSES] = {0};
+        int quantum = quantum_time;
+        int remaining_time[MAX_PROCESSES];
+
+        for (int i = 0; i < count; i++) {
+          remaining_time[i] = queue[i].burst_time;
+        }
+
+        int total_arrival = 0;
+        int time_elapsed = 0;
+        int newcount = 0;
+
+          for (int i = 0; i < count; i++) {
+
+               if ( i != 0 && time_elapsed < queue[i].arrival_time && queue[i].arrival_time != queue[i-1].arrival_time)
+               {
+                time_elapsed += queue[i].arrival_time - queue[i-1].arrival_time;
+               }else if (i == 0)
+               {
+                time_elapsed += queue[i].arrival_time;
+               }
+               
+
+              assign_to_cpu2(queue[i], output_file);
+
+              if (remaining_time[i] > quantum) {
+
+
+                time_elapsed += quantum;
+                remaining_time[i] -= quantum;
+
+
+                for (int a = 0; a < count; a++)
+                {
+
+                    if (queue[a].arrival_time > time_elapsed)
+                    {
+                        
+                        for (int x = count - 1; x > 0; x--)
+                        {
+                            if (queue[a].process_number == queue[x+1].process_number)
+                            {
+                                queue[x+1] = queue[i];
+                                remaining_time[x+1] = remaining_time[i];
+                                queue[x+1].burst_time=remaining_time[x+1];
+                                x=0;
+                                a=count;
+                            }else{
+                            queue[x+1] = queue[x];
+                            remaining_time[x+1] = remaining_time[x];
+                            }
+                            
+
+                        }
+                        
+                    }
+                  
+                }
+                count++;
+
+                fprintf(output_file, "Process %d run until the defined quantum time and is queued again because the process is not completed\n", queue[i].process_number);
+              } else {
+
+                time_elapsed += remaining_time[i];
+                remaining_time[i] = 0;
+                fprintf(output_file, "Process %d is completed and terminated.\n", queue[i].process_number);
+              }
+
+              
+              RR[newcount] = queue[i];
+              newcount++;
+            
+          }
+
+
+        for (int i = 0; i < newcount; i++) {
+          queue[i] = RR[i];
+        }
+        return newcount;
+      }
       int main(int argc, char *argv[]) {
           return 0;
 
